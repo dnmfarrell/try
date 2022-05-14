@@ -27,3 +27,28 @@ func TestMonadLaws(t *testing.T) {
 		t.Error("Failure does not obey associativity law")
 	}
 }
+
+func TestLift(t *testing.T) {
+	f := func(i int) int { return i + 2 }
+	g := Lift(f)
+	if g(Succeed[int](5)).Val != 7 {
+		t.Error("Map doesn't call lifted function on success")
+	}
+	if g(Fail[int](errors.New("ruhroh"))).Val == 2 {
+		t.Error("Map calls lifted function on failure")
+	}
+}
+
+func TestLift2(t *testing.T) {
+	f := func(x int, y int) int { return x + y }
+	g := Lift2(f)
+	if g(Succeed[int](5), Succeed[int](4)).Val != 9 {
+		t.Error("Map2 doesn't call lifted function on success")
+	}
+	if g(Fail[int](errors.New("ruhroh")), Succeed[int](4)).Val == 4 {
+		t.Error("Map2 calls lifted function on Fail[A]")
+	}
+	if g(Succeed[int](4), Fail[int](errors.New("ruhroh"))).Val == 4 {
+		t.Error("Map2 calls lifted function on Fail[B]")
+	}
+}
