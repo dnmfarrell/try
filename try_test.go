@@ -19,11 +19,11 @@ func TestMonadLaws(t *testing.T) {
 	// bind(bind(m,f), g) == bind(m, fg)
 	m := Succeed[int](a)
 	g := func(i int) Try[int] { return Succeed[int](i / 2) }
-	if Bind(Bind(m, f), g).Val != Bind(m, Compose[int, int, int](f, g)).Val {
+	if Fmap(Fmap(m, f), g).Val != Fmap(m, Compose[int, int, int](f, g)).Val {
 		t.Error("Success does not obey associativity law")
 	}
 	M := Fail[int](errors.New("womp womp"))
-	if Bind(Bind(M, f), g).Err != Bind(M, Compose[int, int, int](f, g)).Err {
+	if Fmap(Fmap(M, f), g).Err != Fmap(M, Compose[int, int, int](f, g)).Err {
 		t.Error("Failure does not obey associativity law")
 	}
 }

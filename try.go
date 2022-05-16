@@ -5,15 +5,25 @@ type Try[A any] struct {
 	Val A
 }
 
-func Bind[A, B any](a Try[A], f func(v A) Try[B]) Try[B] {
+func Fmap[A, B any](a Try[A], f func(a A) Try[B]) Try[B] {
 	if a.Err == nil {
 		return f(a.Val)
 	}
 	return Fail[B](a.Err)
 }
 
+func Fmap2[A, B, C any](a Try[A], b Try[B], f func(a A, b B) Try[C]) Try[C] {
+	if a.Err == nil {
+		if b.Err == nil {
+			return f(a.Val, b.Val)
+		}
+		return Fail[C](b.Err)
+	}
+	return Fail[C](a.Err)
+}
+
 func Compose[A, B, C any](f func(a A) Try[B], g func(b B) Try[C]) func(A) Try[C] {
-	return func(a A) Try[C] { return Bind(f(a), g) }
+	return func(a A) Try[C] { return Fmap(f(a), g) }
 }
 
 func Map[A, B any](a Try[A], f func(A) B) Try[B] {
@@ -42,4 +52,5 @@ func Lift2[A, B, C any](f func(A, B) C) func(Try[A], Try[B]) Try[C] {
 }
 
 func Fail[A any](err error) Try[A] { return Try[A]{Err: err} }
-func Succeed[A any](val A) Try[A]  { return Try[A]{Val: val} }
+
+func Succeed[A any](val A) Try[A] { return Try[A]{Val: val} }
