@@ -43,6 +43,26 @@ func Map2[A, B, C any](a Try[A], b Try[B], f func(A, B) C) Try[C] {
 	return Fail[C](a.Err)
 }
 
+func New[A, B any](f func(a A) (B, error)) func(A) Try[B] {
+	return func(a A) Try[B] {
+		val, err := f(a)
+		if err == nil {
+			return Succeed[B](val)
+		}
+		return Fail[B](err)
+	}
+}
+
+func New2[A, B, C any](f func(a A, b B) (C, error)) func(A, B) Try[C] {
+	return func(a A, b B) Try[C] {
+		val, err := f(a, b)
+		if err == nil {
+			return Succeed[C](val)
+		}
+		return Fail[C](err)
+	}
+}
+
 func Lift[A, B any](f func(A) B) func(Try[A]) Try[B] {
 	return func(a Try[A]) Try[B] { return Map(a, f) }
 }
