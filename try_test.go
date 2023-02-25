@@ -28,13 +28,36 @@ func TestMonadLaws(t *testing.T) {
 	}
 }
 
-func TestNew(t *testing.T) {
-	tryParseBool := New(strconv.ParseBool)
-	if !tryParseBool("true").Val {
-		t.Error("Monadic parseBool didn't return parse value")
+func TestLift(t *testing.T) {
+	if !Lift("true", strconv.ParseBool).Val {
+		t.Error("Lifted function didn't return value")
 	}
-	if tryParseBool("foo").Err == nil {
-		t.Error("Monadic parseBool didn't return parse error")
+	if Lift("x", strconv.ParseBool).Err == nil {
+		t.Error("Lifted function didn't return error")
+	}
+}
+
+func TestLift2(t *testing.T) {
+	f := func(x, y int) (int, error) {
+		if x+y > 9 {
+			return 0, errors.New("too big")
+		}
+		return x + y, nil
+	}
+	if Lift2(1, 5, f).Val != 6 {
+		t.Error("Lifted function didn't return value")
+	}
+	if Lift2(7, 5, f).Err == nil {
+		t.Error("Lifted function didn't return error")
+	}
+}
+
+func TestLift3(t *testing.T) {
+	if Lift3("1", 10, 32, strconv.ParseInt).Val != 1 {
+		t.Error("Lifted function didn't return value")
+	}
+	if Lift3("x", 10, 32, strconv.ParseInt).Err == nil {
+		t.Error("Lifted function didn't return error")
 	}
 }
 

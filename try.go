@@ -1,23 +1,11 @@
-// Package try provides an either monad for bundling return vales and
-// exceptions. It includes standard functions like bind, fmap and return.
+// Package try provides an either monad for bundling return values and
+// errors. It includes standard functions like bind, fmap, lift and return.
 package try
 
 // Try is a monadic either type which contains a generic value or an error.
 type Try[A any] struct {
-	Err error
 	Val A
-}
-
-// New converts a function that returns a value and an error into one that
-// returns a Try.
-func New[A, B any](f func(a A) (B, error)) func(A) Try[B] {
-	return func(a A) Try[B] {
-		val, err := f(a)
-		if err == nil {
-			return Succeed[B](val)
-		}
-		return Fail[B](err)
-	}
+	Err error
 }
 
 // Fail constructs a Try that wraps an error (aka "return").
@@ -42,4 +30,22 @@ func Bind[A, B any](a Try[A], f func(A) Try[B]) Try[B] {
 		return f(a.Val)
 	}
 	return Fail[B](a.Err)
+}
+
+// Lift wraps the return values of func(A) (B,error) into Try[B].
+func Lift[A, B any](a A, f func(A) (B, error)) Try[B] {
+	b, e := f(a)
+	return Try[B]{b, e}
+}
+
+// Lift2 wraps the return values of func(A,B) (C,error) into Try[C].
+func Lift2[A, B, C any](a A, b B, f func(A, B) (C, error)) Try[C] {
+	c, e := f(a, b)
+	return Try[C]{c, e}
+}
+
+// Lift3 wraps the return values of func(A,B,C) (D,error) into Try[D].
+func Lift3[A, B, C, D any](a A, b B, c C, f func(A, B, C) (D, error)) Try[D] {
+	d, e := f(a, b, c)
+	return Try[D]{d, e}
 }
