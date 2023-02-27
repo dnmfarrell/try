@@ -1,5 +1,5 @@
 // Package try provides an either monad for bundling return values and
-// errors. It includes standard functions like bind, fmap, lift and return.
+// errors. It includes standard functions like bind, map, lift and return.
 package try
 
 // Try is a monadic either type which contains a generic value or an error.
@@ -14,9 +14,9 @@ func Fail[A any](err error) Try[A] { return Try[A]{Err: err} }
 // Succeed constructs a Try that wraps a value (aka "return").
 func Succeed[A any](val A) Try[A] { return Try[A]{Val: val} }
 
-// Fmap applies a Try to a non-monadic function, wrapping the return value as a
+// Map applies a Try to a non-monadic function, wrapping the return value as a
 // Try. The function is only called when the Try is not an error.
-func Fmap[A, B any](a Try[A], f func(A) B) Try[B] {
+func Map[A, B any](a Try[A], f func(A) B) Try[B] {
 	if a.Err == nil {
 		return Succeed[B](f(a.Val))
 	}

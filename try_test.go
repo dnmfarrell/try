@@ -61,15 +61,15 @@ func TestLift3(t *testing.T) {
 	}
 }
 
-func TestFmap(t *testing.T) {
+func TestMap(t *testing.T) {
 	i := func(s string) string { return s }
 	s := Succeed[string]("x")
-	if Fmap(s, i).Val != "x" {
-		t.Error("Fmap didn't apply monad")
+	if Map(s, i).Val != "x" {
+		t.Error("Map didn't apply monad")
 	}
 	e := Fail[string](errors.New(""))
-	if Fmap(e, i).Err == nil {
-		t.Error("Fmap didn't return an error")
+	if Map(e, i).Err == nil {
+		t.Error("Map didn't return an error")
 	}
 }
 
